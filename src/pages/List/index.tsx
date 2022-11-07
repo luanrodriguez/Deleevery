@@ -1,5 +1,5 @@
 export function List() {
     return (
-        <h1>List</h1>
+        <h1>Lista</h1>
     )
 }
