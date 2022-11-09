@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
+import { isFuture, isToday, parseISO} from 'date-fns'
 import { GoogleMap, useJsApiLoader, DirectionsRenderer } from "@react-google-maps/api"
 
 import { 
@@ -10,56 +11,97 @@ import {
     TextInput, 
     DateInput,
     FormButtonsContainer,
-    FormButton
+    FormButton,
+    StatusMessage
 } from './styles'
+
+export interface InputsType {
+    origin: string,
+    destination: string,
+    deliveryDate: string,
+    clientName: string
+}
 
 export function Register() {
     const [directions, setDirections] = useState<google.maps.DirectionsResult>()
+    const [statusMessage, setStatusMessage] = useState<string>('')
     const {isLoaded} = useJsApiLoader({'googleMapsApiKey': ""})
-    const {register, handleSubmit, reset } = useForm()
-    const today = new Date()
+    const {register, handleSubmit, reset } = useForm<InputsType>()
+    const [success, setSuccess] = useState<boolean>(false)
 
-    function handleTestRoute(data: any){
+    function validateInputs(data: InputsType): [boolean, string] {
+        const deliveryDate = parseISO(data.deliveryDate)
+        if( 
+            data.clientName.length < 1 ||
+            data.destination.length < 1 ||
+            data.origin.length < 1
+        ) {
+            return [false, 'Os campos não podem ficar vazios']
+        } else if(!data.deliveryDate || !isToday(deliveryDate)) {
+            if(!isFuture(deliveryDate)){
+                return [false, 'A data não pode ser antes de hoje']
+            }     
+        }
+        return [true, '']
+    }
+
+    async function requestRoutes(origin: string, destination: string) {
         const directionsService = new google.maps.DirectionsService()
-        directionsService.route({
-            origin: data.origin,
-            destination: data.destination,
+        return await directionsService.route({
+            origin: origin,
+            destination: destination,
             travelMode: google.maps.TravelMode.DRIVING
-        }).then(result => {
-            setDirections(result)
-        }).catch(error => {
-            console.log(error)
         })
     }
 
-    function handleSaveDelivery(data: any) {
-        console.log(data['client-name'])
-        console.log(data['delivery-date'])
-        console.log(data.destination)
-        console.log(data.origin)
-        reset()
+    function handleTestRoute(data: InputsType){
+        const routes = requestRoutes(data.origin, data.destination)
+        routes.then(result => {
+            setSuccess(true)
+            setStatusMessage('Rota encontrada!')
+            setDirections(result)
+        }).catch(() => {
+            setSuccess(false)
+            setStatusMessage('Rota não encontrada!')
+        })
+    }
+
+    function handleSaveDelivery(data: InputsType) {
+        const [areInputsValid, errorMessage] = validateInputs(data)
+        
+        if(!areInputsValid) {
+            setSuccess(false)
+            setStatusMessage(errorMessage)
+            return
+        }
+
+        const routes = requestRoutes(data.origin, data.destination)
+        routes.then(() => {
+            setSuccess(true)
+            setStatusMessage('Entrega cadastrada!')
+            reset()
+        }).catch(() => {
+            setSuccess(false)
+            setStatusMessage('Rota não encontrada!')
+        })
     }
 
     return ( 
         <RegisterContainer>
             <FormContainer onSubmit={handleSubmit(handleSaveDelivery)}>
-                <InputLabel htmlFor='client-name'>Nome do cliente:</InputLabel>
+                <InputLabel htmlFor='clientName'>Nome do cliente:</InputLabel>
                 <TextInput 
                     type='text' 
-                    id='client-name' 
+                    id='clientName' 
                     placeholder='Digite o nome do cliente'
-                    minLength={2}
-                    {...register('client-name')}
+                    {...register('clientName')}
                 />
 
-                <InputLabel htmlFor='delivery-date'>Data de entrega:</InputLabel>
+                <InputLabel htmlFor='deliveryDate'>Data de entrega:</InputLabel>
                 <DateInput 
                     type='date' 
-                    id='delivery-date'
-                    min={
-                        `${today.getFullYear()}-${today.getMonth() + 1}-${today.getDate() < 10? `0${today.getDate()}` : today.getDate()}`
-                    }
-                    {...register('delivery-date')}
+                    id='deliveryDate'
+                    {...register('deliveryDate')}
                 />
 
                 <InputLabel htmlFor='origin'>Origem:</InputLabel>
@@ -67,7 +109,6 @@ export function Register() {
                     type='text'
                     id='origin'
                     placeholder='Digite o endereço ou coordenada'
-                    minLength={2}
                     {...register('origin')}
                 />
                 
@@ -76,14 +117,14 @@ export function Register() {
                     type='text'
                     id='destination'
                     placeholder='Digite o endereço ou coordenada'
-                    minLength={2}
                     {...register('destination')}
                 />
 
                 <FormButtonsContainer>
                     <FormButton type='button' onClick={handleSubmit(handleTestRoute)}>Testar rota</FormButton>
-                    <FormButton type='submit'>Cadastrar rota</FormButton>
+                    <FormButton type='submit'>Cadastrar entrega</FormButton>
                 </FormButtonsContainer>
+                {statusMessage && <StatusMessage success={success}>{statusMessage}</StatusMessage>}
             </FormContainer>
             <GoogleMapContainer>
                 {isLoaded && <GoogleMap 

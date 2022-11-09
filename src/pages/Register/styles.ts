@@ -1,5 +1,9 @@
 import styled from "styled-components";
 
+interface StatusMessageType {
+    success: boolean
+}
+
 export const RegisterContainer = styled.div`
     display: flex;
     height: 100%;
@@ -51,4 +55,16 @@ export const FormButton = styled.button`
     height: 2rem;
     border-radius: 8px;
     border: 0;
+`
+
+export const StatusMessage = styled.span<StatusMessageType>`
+    display: flex;
+    background-color: ${({success}) => success? 'green': 'red'};
+    height: 2rem;
+    border-radius: 8px;
+    border: 0;
+    align-items: center;
+    justify-content: center;
+    margin-top: 2rem;
+    padding: 0.3rem;
 `
