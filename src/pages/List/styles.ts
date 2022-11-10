@@ -21,5 +21,8 @@ export const ListContainer =  styled.div`
         padding: 1rem;
     }
 
+    .map-modal {
+        background-color: black;
+    }
     
 `

@@ -1,3 +1,4 @@
+import axios from 'axios'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { isFuture, isToday, parseISO} from 'date-fns'
@@ -16,6 +17,7 @@ import {
 } from './styles'
 
 export interface InputsType {
+    id: number,
     origin: string,
     destination: string,
     deliveryDate: string,
@@ -25,7 +27,7 @@ export interface InputsType {
 export function Register() {
     const [directions, setDirections] = useState<google.maps.DirectionsResult>()
     const [statusMessage, setStatusMessage] = useState<string>('')
-    const {isLoaded} = useJsApiLoader({'googleMapsApiKey': ""})
+    const {isLoaded} = useJsApiLoader({'googleMapsApiKey': import.meta.env.VITE_GOOGLEMAPSKEY as string})
     const {register, handleSubmit, reset } = useForm<InputsType>()
     const [success, setSuccess] = useState<boolean>(false)
 
@@ -77,9 +79,15 @@ export function Register() {
 
         const routes = requestRoutes(data.origin, data.destination)
         routes.then(() => {
-            setSuccess(true)
-            setStatusMessage('Entrega cadastrada!')
-            reset()
+            axios.post('https://deleeveryapi.herokuapp.com/delivery', data).then((res) => {
+                setSuccess(true)
+                setStatusMessage('Entrega cadastrada!')
+                reset()
+            }).catch(() => {
+                setSuccess(false)
+                setStatusMessage('Erro interno do servidor')
+            })
+
         }).catch(() => {
             setSuccess(false)
             setStatusMessage('Rota não encontrada!')
