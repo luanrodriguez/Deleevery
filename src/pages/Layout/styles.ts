@@ -3,31 +3,44 @@ import styled from 'styled-components'
 export const LayoutContainer = styled.div`
     display: flex;
     flex-direction: column;
-    background-color: #333333;
     height: calc(100vh - 10rem);
-    max-width: 74rem;
-    margin: 5rem auto;
+    background-color: #333333;
     border-radius: 8px;
     padding: 1rem;
+    overflow: auto;
+    margin: 5rem;
 `
 export const LayoutHeader = styled.div`
     display: flex;
     margin-bottom: 1rem;
+    flex-wrap: wrap;
+    @media screen and (max-width: 690px) {
+        flex-direction: column;
+        align-items: center;
+    }
 `
 
 export const LayoutTitle = styled.h1`
     font-size: 2rem;
     font-weight: bold;
     font-style: italic;
+    @media screen and (max-width: 690px) {
+        margin-bottom: 0.5rem;
+    }
 `
 
 export const LayoutNavBar = styled.div`
     display: flex;
     flex: 1;
     justify-content: end;
-    gap: 3rem;
-    border-radius: 8px 8px 0 0;
-    margin-left: 0.5rem;
+
+    @media screen and (max-width: 690px) {
+        justify-content: center;
+    }
+
+    @media screen and (max-width: 560px) {
+        flex-direction: column;
+    }
 `
 
 export const LayoutNavBarOption = styled.a`
@@ -41,6 +54,8 @@ export const LayoutNavBarOption = styled.a`
     justify-content: center;
     border-radius: 8px;
     padding: 0.4rem;
+    margin: 1rem;
+    margin-top: 0;
 
     :hover {
         background-color: #2b517a;

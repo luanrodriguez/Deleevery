@@ -105,13 +105,6 @@ export function Register() {
                     {...register('clientName')}
                 />
 
-                <InputLabel htmlFor='deliveryDate'>Data de entrega:</InputLabel>
-                <DateInput 
-                    type='date' 
-                    id='deliveryDate'
-                    {...register('deliveryDate')}
-                />
-
                 <InputLabel htmlFor='origin'>Origem:</InputLabel>
                 <TextInput 
                     type='text'
@@ -128,6 +121,12 @@ export function Register() {
                     {...register('destination')}
                 />
 
+                <InputLabel htmlFor='deliveryDate'>Data de entrega:</InputLabel>
+                <DateInput 
+                    type='date' 
+                    id='deliveryDate'
+                    {...register('deliveryDate')}
+                />
                 <FormButtonsContainer>
                     <FormButton type='button' onClick={handleSubmit(handleTestRoute)}>Testar rota</FormButton>
                     <FormButton type='submit'>Cadastrar entrega</FormButton>
