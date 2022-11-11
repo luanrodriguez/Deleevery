@@ -8,7 +8,7 @@ export function Layout() {
                 <LayoutTitle>Deleevery</LayoutTitle>
                 <LayoutNavBar>
                     <LayoutNavBarOption href="/">Cadastro</LayoutNavBarOption>
-                    <LayoutNavBarOption href="/list">Lista de entregas</LayoutNavBarOption>
+                    <LayoutNavBarOption href="/#/list">Lista de entregas</LayoutNavBarOption>
                 </LayoutNavBar>
             </LayoutHeader>
             <Outlet />
